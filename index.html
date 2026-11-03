@@ -5,166 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0,
           maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>AR Параллакс</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             overflow: hidden;
             background: #000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
-                         Roboto, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
+            font-family: -apple-system, sans-serif;
         }
 
-        /* ===== Экран загрузки ===== */
         #overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            color: #fff;
-            padding: 30px;
-            text-align: center;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 10000; color: #fff;
+            padding: 30px; text-align: center;
         }
-
-        #overlay.hidden {
-            display: none;
-        }
+        #overlay.hidden { display: none; }
 
         .spinner {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border: 3px solid #333;
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-bottom: 20px;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #overlay h2 {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-
-        #overlay .subtitle {
-            color: #999;
-            font-size: 14px;
-            line-height: 1.5;
-            max-width: 300px;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         #start-btn {
             margin-top: 24px;
             padding: 16px 50px;
-            font-size: 17px;
-            font-weight: 600;
-            background: #34c759;
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            display: none;
-            -webkit-tap-highlight-color: transparent;
+            font-size: 17px; font-weight: 600;
+            background: #34c759; color: #fff;
+            border: none; border-radius: 14px;
+            cursor: pointer; display: none;
         }
-
-        #start-btn:active {
-            background: #2da44e;
-            transform: scale(0.97);
-        }
-
-        #start-btn:disabled {
-            background: #555;
-        }
+        #start-btn:active { background: #2da44e; }
+        #start-btn:disabled { background: #555; }
 
         #status {
             margin-top: 16px;
-            font-size: 13px;
-            color: #777;
-            max-width: 300px;
-            line-height: 1.5;
+            font-size: 13px; color: #777;
+            max-width: 300px; line-height: 1.5;
         }
 
         #error-box {
-            display: none;
-            margin-top: 16px;
+            display: none; margin-top: 16px;
             padding: 16px;
-            background: rgba(255, 59, 48, 0.15);
-            border: 1px solid rgba(255, 59, 48, 0.4);
+            background: rgba(255,59,48,0.15);
+            border: 1px solid rgba(255,59,48,0.4);
             border-radius: 12px;
-            color: #ff6b6b;
-            font-size: 13px;
-            max-width: 320px;
-            text-align: left;
-            line-height: 1.6;
+            color: #ff6b6b; font-size: 13px;
+            max-width: 320px; text-align: left; line-height: 1.6;
         }
 
-        #error-box b {
-            color: #ff4444;
-        }
-
-        /* ===== Подсказка ===== */
         #hint {
             position: fixed;
             top: max(env(safe-area-inset-top, 12px), 12px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            padding: 10px 24px;
-            border-radius: 25px;
-            font-size: 14px;
-            z-index: 9999;
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff; padding: 10px 24px;
+            border-radius: 25px; font-size: 14px;
+            z-index: 9999; pointer-events: none;
             transition: opacity 0.6s;
-            white-space: nowrap;
         }
-
-        #hint.hidden {
-            opacity: 0;
-        }
+        #hint.hidden { opacity: 0; }
     </style>
 </head>
 <body>
 
-    <!-- Экран загрузки -->
     <div id="overlay">
         <div class="spinner" id="spinner"></div>
-        <h2>AR Параллакс</h2>
-        <p class="subtitle">Наведите камеру на картину, чтобы увидеть эффект глубины</p>
+        <h2 style="margin-bottom:8px;">AR Параллакс</h2>
+        <p style="color:#999;font-size:14px;">
+            Наведите камеру на картину
+        </p>
         <button id="start-btn">Запустить AR</button>
         <div id="status">Проверка...</div>
         <div id="error-box"></div>
     </div>
 
-    <!-- Подсказка -->
     <div id="hint" class="hidden">📷 Наведите на картину</div>
 
-    <!-- ============================================== -->
-    <!--  БИБЛИОТЕКА: локальный файл из репозитория     -->
-    <!--  Файл mindar-image-three.prod.js должен лежать -->
-    <!--  в корне репозитория рядом с index.html        -->
-    <!--  НЕ добавляйте отдельный Three.js — он внутри  -->
-    <!-- ============================================== -->
+    <!-- ============================================ -->
+    <!--  ПОРЯДОК ВАЖЕН!                              -->
+    <!--  1. Сначала Three.js                         -->
+    <!--  2. Потом MindAR (он использует Three.js)     -->
+    <!-- ============================================ -->
     <script src="three.min.js"></script>
     <script src="mindar-image.prod.js"></script>
 
@@ -173,53 +104,25 @@
         'use strict';
 
         // =============================================
-        //  НАСТРОЙКИ — ИЗМЕНИТЕ ПОД СВОЙ ПРОЕКТ
+        //  НАСТРОЙКИ
         // =============================================
         var CFG = {
-            // Скомпилированный файл целевого изображения
             targetsFile: 'targets.mind',
-
-            // Индекс изображения в .mind (0 = первое)
             targetIndex: 0,
-
-            // Пути к параллакс-слоям
             layers: {
                 back:  'images/layer-back.png',
                 mid:   'images/layer-mid.png',
                 front: 'images/layer-front.png'
             },
-
-            // Соотношение сторон картины (ширина / высота)
-            // Например: картина 80×60 см → 80/60 = 1.33
             aspectRatio: 1.33,
-
-            // Глубина слоёв (отрицательное = дальше)
-            zDepth: {
-                back:  -0.06,
-                mid:   -0.03,
-                front:  0.0
-            },
-
-            // Увеличение слоёв (задний больше для параллакса)
-            layerScale: {
-                back:  1.40,
-                mid:   1.20,
-                front: 1.02
-            },
-
-            // Сила параллакса
-            parallax: {
-                back:  0.025,
-                mid:   0.012,
-                front: 0.0
-            },
-
-            // Ширина рамки в 3D-единицах
+            zDepth:     { back: -0.06, mid: -0.03, front: 0.0 },
+            layerScale: { back: 1.40,  mid: 1.20,  front: 1.02 },
+            parallax:   { back: 0.025, mid: 0.012,  front: 0.0 },
             frameWidth: 1.0
         };
 
         // =============================================
-        //  DOM-ЭЛЕМЕНТЫ
+        //  DOM
         // =============================================
         var overlay  = document.getElementById('overlay');
         var spinner  = document.getElementById('spinner');
@@ -246,62 +149,43 @@
         function checkAll() {
             var errors = [];
 
-            // 1. MindAR
-            if (typeof window.MINDAR === 'undefined') {
-                errors.push(
-                    '❌ <b>MindAR не загрузился</b><br>' +
-                    'Убедитесь что файл <b>mindar-image-three.prod.js</b> ' +
-                    'лежит в корне репозитория рядом с index.html'
-                );
-            } else if (typeof window.MINDAR.IMAGE === 'undefined') {
-                errors.push(
-                    '❌ MindAR загружен, но модуль IMAGE отсутствует.<br>' +
-                    'Возможно, скачан неправильный файл. ' +
-                    'Нужен именно <b>mindar-image-three.prod.js</b>'
-                );
-            } else if (typeof window.MINDAR.IMAGE.MindARThree === 'undefined') {
-                errors.push(
-                    '❌ MindAR.IMAGE.MindARThree не найден.<br>' +
-                    'Файл повреждён или неполный.'
-                );
-            }
-
-            // 2. Three.js (должен быть внутри MindAR)
             if (typeof window.THREE === 'undefined') {
                 errors.push(
                     '❌ <b>Three.js не найден</b><br>' +
-                    'Он должен быть встроен в mindar-image-three.prod.js'
+                    'Проверьте что файл <b>three.min.js</b> ' +
+                    'лежит в корне репозитория'
                 );
             }
 
-            // 3. Камера
+            if (typeof window.MINDAR === 'undefined') {
+                errors.push(
+                    '❌ <b>MindAR не найден</b><br>' +
+                    'Проверьте что файл <b>mindar-image.prod.js</b> ' +
+                    'лежит в корне репозитория'
+                );
+            } else if (typeof window.MINDAR.IMAGE === 'undefined') {
+                errors.push(
+                    '❌ MindAR загружен, но модуль IMAGE отсутствует'
+                );
+            } else if (typeof window.MINDAR.IMAGE.MindARThree === 'undefined') {
+                errors.push(
+                    '❌ MindARThree не найден в MindAR'
+                );
+            }
+
             if (!navigator.mediaDevices ||
                 !navigator.mediaDevices.getUserMedia) {
                 errors.push(
                     '❌ <b>Камера недоступна</b><br>' +
                     'Протокол: <b>' + location.protocol + '</b><br>' +
-                    'Нужен <b>HTTPS</b>. ' +
-                    'Проверьте настройки GitHub Pages.'
+                    'Нужен <b>HTTPS</b>'
                 );
-            }
-
-            // 4. WebGL
-            try {
-                var c = document.createElement('canvas');
-                var gl = c.getContext('webgl') ||
-                         c.getContext('experimental-webgl');
-                if (!gl) {
-                    errors.push('❌ WebGL не поддерживается');
-                }
-            } catch (e) {
-                errors.push('❌ Ошибка WebGL: ' + e.message);
             }
 
             if (errors.length > 0) {
                 showError(errors.join('<br><br>'));
                 return false;
             }
-
             return true;
         }
 
@@ -319,13 +203,11 @@
                     return;
                 }
 
-                // iOS 13+ требует разрешения
                 if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission()
                         .then(function (perm) {
                             if (perm === 'granted') {
                                 listenGyro();
-                                setStatus('Гироскоп активен');
                             } else {
                                 setStatus('Гироскоп не разрешён');
                             }
@@ -345,26 +227,20 @@
         function listenGyro() {
             window.addEventListener('deviceorientation', function (e) {
                 if (e.gamma === null) return;
-
                 if (!gyroBase) {
-                    gyroBase = {
-                        beta:  e.beta  || 0,
-                        gamma: e.gamma || 0
-                    };
+                    gyroBase = { beta: e.beta || 0, gamma: e.gamma || 0 };
                 }
-
-                var gx = ((e.gamma || 0) - gyroBase.gamma) / 30;
-                var gy = ((e.beta  || 0) - gyroBase.beta)  / 30;
-
-                gyro.x = Math.max(-1, Math.min(1, gx));
-                gyro.y = Math.max(-1, Math.min(1, gy));
+                gyro.x = Math.max(-1, Math.min(1,
+                    ((e.gamma || 0) - gyroBase.gamma) / 30));
+                gyro.y = Math.max(-1, Math.min(1,
+                    ((e.beta || 0) - gyroBase.beta) / 30));
             }, true);
         }
 
         // =============================================
         //  ЗАГРУЗКА ТЕКСТУРЫ
         // =============================================
-        function loadTexture(url, THREE) {
+        function loadTexture(url) {
             return new Promise(function (resolve, reject) {
                 var loader = new THREE.TextureLoader();
                 loader.load(
@@ -375,27 +251,20 @@
                         resolve(tex);
                     },
                     undefined,
-                    function () {
-                        reject(new Error(url));
-                    }
+                    function () { reject(new Error(url)); }
                 );
             });
         }
 
         // =============================================
-        //  ГЛАВНАЯ ФУНКЦИЯ
+        //  ЗАПУСК AR
         // =============================================
         function launchAR() {
             setStatus('Проверка файлов...');
-
             if (!checkAll()) return;
 
             setStatus('Инициализация AR...');
 
-            var MINDAR = window.MINDAR;
-            var THREE  = window.THREE;
-
-            // --- Создание MindAR ---
             var mindarThree;
             try {
                 mindarThree = new MINDAR.IMAGE.MindARThree({
@@ -408,9 +277,7 @@
                     uiError: 'no'
                 });
             } catch (e) {
-                showError(
-                    'Ошибка создания MindAR:<br><b>' + e.message + '</b>'
-                );
+                showError('Ошибка MindAR:<br><b>' + e.message + '</b>');
                 return;
             }
 
@@ -419,7 +286,7 @@
             var camera   = mindarThree.camera;
 
             if (!renderer) {
-                showError('Renderer не создан. Попробуйте другой браузер.');
+                showError('Renderer не создан');
                 return;
             }
 
@@ -428,28 +295,22 @@
 
             setStatus('Загрузка слоёв...');
 
-            // --- Загрузка всех текстур ---
             Promise.all([
-                loadTexture(CFG.layers.back,  THREE),
-                loadTexture(CFG.layers.mid,   THREE),
-                loadTexture(CFG.layers.front, THREE)
+                loadTexture(CFG.layers.back),
+                loadTexture(CFG.layers.mid),
+                loadTexture(CFG.layers.front)
             ]).then(function (textures) {
 
                 setStatus('Построение сцены...');
 
-                var texBack  = textures[0];
-                var texMid   = textures[1];
-                var texFront = textures[2];
-
                 var fw = CFG.frameWidth;
                 var fh = fw / CFG.aspectRatio;
 
-                // --- Якорь (привязка к изображению) ---
                 var anchor = mindarThree.addAnchor(CFG.targetIndex);
                 var artGroup = new THREE.Group();
                 anchor.group.add(artGroup);
 
-                // --- Стенсил-маска (невидимая рамка) ---
+                // Стенсил-маска
                 var maskGeo = new THREE.PlaneGeometry(fw, fh);
                 var maskMat = new THREE.MeshBasicMaterial({
                     colorWrite: false,
@@ -464,8 +325,8 @@
                 maskMesh.renderOrder = 0;
                 artGroup.add(maskMesh);
 
-                // --- Создание слоя ---
-                function makeLayer(tex, name, renderOrder) {
+                // Слои
+                function makeLayer(tex, name, order) {
                     var w = fw * CFG.layerScale[name];
                     var h = fh * CFG.layerScale[name];
                     var geo = new THREE.PlaneGeometry(w, h);
@@ -480,21 +341,18 @@
                     });
                     var mesh = new THREE.Mesh(geo, mat);
                     mesh.position.z = CFG.zDepth[name];
-                    mesh.renderOrder = renderOrder;
+                    mesh.renderOrder = order;
                     artGroup.add(mesh);
                     return mesh;
                 }
 
-                var meshBack  = makeLayer(texBack,  'back',  1);
-                var meshMid   = makeLayer(texMid,   'mid',   2);
-                var meshFront = makeLayer(texFront,  'front', 3);
+                var meshBack  = makeLayer(textures[0], 'back',  1);
+                var meshMid   = makeLayer(textures[1], 'mid',   2);
+                var meshFront = makeLayer(textures[2], 'front', 3);
 
-                // --- Декоративная рамка ---
+                // Рамка
                 var bw = 0.015;
-                var bMat = new THREE.MeshBasicMaterial({
-                    color: 0x1c1c1e,
-                    side: THREE.FrontSide
-                });
+                var bMat = new THREE.MeshBasicMaterial({ color: 0x1c1c1e });
 
                 function addFrame(x, y, w, h) {
                     var m = new THREE.Mesh(
@@ -505,12 +363,12 @@
                     artGroup.add(m);
                 }
 
-                addFrame(0,  fh / 2 + bw / 2, fw + bw * 2, bw);
-                addFrame(0, -fh / 2 - bw / 2, fw + bw * 2, bw);
-                addFrame(-fw / 2 - bw / 2, 0, bw, fh);
-                addFrame( fw / 2 + bw / 2, 0, bw, fh);
+                addFrame(0,  fh/2 + bw/2, fw + bw*2, bw);
+                addFrame(0, -fh/2 - bw/2, fw + bw*2, bw);
+                addFrame(-fw/2 - bw/2, 0, bw, fh);
+                addFrame( fw/2 + bw/2, 0, bw, fh);
 
-                // --- События трекинга ---
+                // Трекинг
                 var isTracking = false;
 
                 anchor.onTargetFound = function () {
@@ -525,15 +383,13 @@
                     hintEl.classList.remove('hidden');
                 };
 
-                // --- Запуск камеры ---
+                // Запуск
                 setStatus('Запуск камеры...');
 
                 mindarThree.start().then(function () {
-
                     overlay.classList.add('hidden');
                     hintEl.classList.remove('hidden');
 
-                    // --- Рендер-цикл ---
                     renderer.setAnimationLoop(function () {
                         if (isTracking) {
                             meshBack.position.x =
@@ -551,28 +407,22 @@
                             meshFront.position.y =
                                 -gyro.y * CFG.parallax.front;
                         }
-
                         gl.enable(gl.STENCIL_TEST);
                         renderer.render(scene, camera);
                     });
-
                 }).catch(function (e) {
                     showError(
-                        'Не удалось запустить камеру:<br><b>' +
+                        'Камера не запустилась:<br><b>' +
                         e.message + '</b><br><br>' +
-                        'Убедитесь что:<br>' +
-                        '• Сайт открыт через <b>HTTPS</b><br>' +
-                        '• Вы разрешили доступ к камере<br>' +
-                        '• Камера не занята другим приложением'
+                        '• Сайт должен быть на <b>HTTPS</b><br>' +
+                        '• Разрешите доступ к камере'
                     );
                 });
 
             }).catch(function (e) {
                 showError(
-                    'Не удалось загрузить слой:<br><b>' +
-                    e.message + '</b><br><br>' +
-                    'Проверьте что файл существует в репозитории ' +
-                    'и путь указан правильно.'
+                    'Не загружен слой:<br><b>' + e.message + '</b><br><br>' +
+                    'Проверьте папку images/ в репозитории'
                 );
             });
         }
@@ -581,14 +431,10 @@
         //  ТОЧКА ВХОДА
         // =============================================
         window.addEventListener('DOMContentLoaded', function () {
-
-            // Даём браузеру время загрузить локальный JS-файл
             setTimeout(function () {
-
                 var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
                 if (isIOS) {
-                    // iOS: нужен тап для камеры + гироскопа
                     spinner.style.display = 'none';
                     startBtn.style.display = 'block';
                     setStatus('Нажмите кнопку для запуска');
@@ -596,19 +442,15 @@
                     startBtn.addEventListener('click', function () {
                         startBtn.disabled = true;
                         startBtn.textContent = 'Запуск...';
-
                         initGyroscope().then(function () {
                             launchAR();
                         });
                     }, { once: true });
-
                 } else {
-                    // Android: запускаем сразу
                     initGyroscope().then(function () {
                         launchAR();
                     });
                 }
-
             }, 300);
         });
 
